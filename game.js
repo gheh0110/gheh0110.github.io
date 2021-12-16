@@ -63,7 +63,7 @@ class playGame extends Phaser.Scene{
         this.load.image('pipe', 'pipe.png');
     }
     create(){
-        this.add.image('background')
+        this.add.image(400, 300,'background')
         this.pipeGroup = this.physics.add.group();
         this.pipePool = [];
         for(let i = 0; i < 4; i++){
