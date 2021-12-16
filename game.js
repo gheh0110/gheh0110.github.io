@@ -20,7 +20,7 @@ var gameOptions = {
     minasteroidHeight: 50,
 
     // distance range from next asteroid, in pixels
-    asteroidDistance: [220, 280],
+    asteroidDistance: [180, 250],
 
     // hole range between asteroids, in pixels
     asteroidHole: [100, 130],
