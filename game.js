@@ -16,14 +16,14 @@ var gameOptions = {
     // flap thrust
     bearFlapPower: 300,
 
-    // minimum pipe height, in pixels. Affects hole position
-    minPipeHeight: 50,
+    // minimum asteroid height, in pixels. Affects hole position
+    minasteroidHeight: 50,
 
-    // distance range from next pipe, in pixels
-    pipeDistance: [220, 280],
+    // distance range from next asteroid, in pixels
+    asteroidDistance: [220, 280],
 
-    // hole range between pipes, in pixels
-    pipeHole: [100, 130],
+    // hole range between asteroids, in pixels
+    asteroidHole: [100, 130],
 
     // local storage object name
     localStorageName: 'bestFlappyScore'
@@ -60,18 +60,18 @@ class playGame extends Phaser.Scene{
     preload(){
         this.load.image('background','background.jpg')
         this.load.image('bear', 'bear.png');
-        this.load.image('pipe', 'pipe.png');
+        this.load.image('asteroid', 'asteroid.png');
     }
     create(){
         this.add.image(400, 300,'background')
-        this.pipeGroup = this.physics.add.group();
-        this.pipePool = [];
+        this.asteroidGroup = this.physics.add.group();
+        this.asteroidPool = [];
         for(let i = 0; i < 4; i++){
-            this.pipePool.push(this.pipeGroup.create(0, 0, 'pipe'));
-            this.pipePool.push(this.pipeGroup.create(0, 0, 'pipe'));
-            this.placePipes(false);
+            this.asteroidPool.push(this.asteroidGroup.create(0, 0, 'asteroid'));
+            this.asteroidPool.push(this.asteroidGroup.create(0, 0, 'asteroid'));
+            this.placeasteroids(false);
         }
-        this.pipeGroup.setVelocityX(-gameOptions.bearSpeed);
+        this.asteroidGroup.setVelocityX(-gameOptions.bearSpeed);
         this.bear = this.physics.add.sprite(80, game.config.height / 2, 'bear');
         this.bear.body.gravity.y = gameOptions.bearGravity;
         this.input.on('pointerdown', this.flap, this);
@@ -91,17 +91,17 @@ class playGame extends Phaser.Scene{
         this.scoreText.text = 'Score: ' + this.score + '\nBest: ' + this.topScore;
     }
 
-    placePipes(addScore){
-        let rightmost = this.getRightmostPipe();
-        let pipeHoleHeight = Phaser.Math.Between(gameOptions.pipeHole[0], gameOptions.pipeHole[1]);
-        let pipeHolePosition = Phaser.Math.Between(gameOptions.minPipeHeight + pipeHoleHeight / 2, game.config.height - gameOptions.minPipeHeight - pipeHoleHeight / 2);
-        this.pipePool[0].x = rightmost + this.pipePool[0].getBounds().width + Phaser.Math.Between(gameOptions.pipeDistance[0], gameOptions.pipeDistance[1]);
-        this.pipePool[0].y = pipeHolePosition - pipeHoleHeight / 2;
-        this.pipePool[0].setOrigin(0, 1);
-        this.pipePool[1].x = this.pipePool[0].x;
-        this.pipePool[1].y = pipeHolePosition + pipeHoleHeight / 2;
-        this.pipePool[1].setOrigin(0, 0);
-        this.pipePool = [];
+    placeasteroids(addScore){
+        let rightmost = this.getRightmostasteroid();
+        let asteroidHoleHeight = Phaser.Math.Between(gameOptions.asteroidHole[0], gameOptions.asteroidHole[1]);
+        let asteroidHolePosition = Phaser.Math.Between(gameOptions.minasteroidHeight + asteroidHoleHeight / 2, game.config.height - gameOptions.minasteroidHeight - asteroidHoleHeight / 2);
+        this.asteroidPool[0].x = rightmost + this.asteroidPool[0].getBounds().width + Phaser.Math.Between(gameOptions.asteroidDistance[0], gameOptions.asteroidDistance[1]);
+        this.asteroidPool[0].y = asteroidHolePosition - asteroidHoleHeight / 2;
+        this.asteroidPool[0].setOrigin(0, 1);
+        this.asteroidPool[1].x = this.asteroidPool[0].x;
+        this.asteroidPool[1].y = asteroidHolePosition + asteroidHoleHeight / 2;
+        this.asteroidPool[1].setOrigin(0, 0);
+        this.asteroidPool = [];
         if(addScore){
             this.updateScore(1);
         }
@@ -109,25 +109,25 @@ class playGame extends Phaser.Scene{
     flap(){
         this.bear.body.velocity.y = -gameOptions.bearFlapPower;
     }
-    getRightmostPipe(){
-        let rightmostPipe = 0;
-        this.pipeGroup.getChildren().forEach(function(pipe){
-            rightmostPipe = Math.max(rightmostPipe, pipe.x);
+    getRightmostasteroid(){
+        let rightmostasteroid = 0;
+        this.asteroidGroup.getChildren().forEach(function(asteroid){
+            rightmostasteroid = Math.max(rightmostasteroid, asteroid.x);
         });
-        return rightmostPipe;
+        return rightmostasteroid;
     }
     update(){
-        this.physics.world.collide(this.bear, this.pipeGroup, function(){
+        this.physics.world.collide(this.bear, this.asteroidGroup, function(){
             this.die();
         }, null, this);
         if(this.bear.y > game.config.height || this.bear.y < 0){
             this.die();
         }
-        this.pipeGroup.getChildren().forEach(function(pipe){
-            if(pipe.getBounds().right < 0){
-                this.pipePool.push(pipe);
-                if(this.pipePool.length == 2){
-                    this.placePipes(true);
+        this.asteroidGroup.getChildren().forEach(function(asteroid){
+            if(asteroid.getBounds().right < 0){
+                this.asteroidPool.push(asteroid);
+                if(this.asteroidPool.length == 2){
+                    this.placeasteroids(true);
                 }
             }
         }, this)
