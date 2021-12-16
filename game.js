@@ -1,14 +1,20 @@
+const serverUrl = "https://jssa74qum3dp.usemoralis.com:2053/server";
+const appId = "Jgtx83pRi6Cklall43XpAcYN4397BbPxXC6Y55WG";
+
+/* Initialize moralis  */
+Moralis.start({ serverUrl, appId });
+
 var game;
 var gameOptions = {
 
-    // bird gravity, will make bird fall if you don't flap
-    birdGravity: 800,
+    // bear gravity, will make bear fall if you don't flap
+    bearGravity: 800,
 
-    // horizontal bird speed
-    birdSpeed: 125,
+    // horizontal bear speed
+    bearSpeed: 125,
 
     // flap thrust
-    birdFlapPower: 300,
+    bearFlapPower: 300,
 
     // minimum pipe height, in pixels. Affects hole position
     minPipeHeight: 50,
@@ -25,7 +31,7 @@ var gameOptions = {
 window.onload = function() {
     let gameConfig = {
         type: Phaser.AUTO,
-        backgroundColor:0x87ceeb,
+        //backgroundColor:0x87ceeb,
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -52,10 +58,12 @@ class playGame extends Phaser.Scene{
         super('PlayGame');
     }
     preload(){
-        this.load.image('bird', 'bird.png');
+        this.load.image('background','background.jpg')
+        this.load.image('bear', 'bear.png');
         this.load.image('pipe', 'pipe.png');
     }
     create(){
+        this.add.image('background')
         this.pipeGroup = this.physics.add.group();
         this.pipePool = [];
         for(let i = 0; i < 4; i++){
@@ -63,19 +71,26 @@ class playGame extends Phaser.Scene{
             this.pipePool.push(this.pipeGroup.create(0, 0, 'pipe'));
             this.placePipes(false);
         }
-        this.pipeGroup.setVelocityX(-gameOptions.birdSpeed);
-        this.bird = this.physics.add.sprite(80, game.config.height / 2, 'bird');
-        this.bird.body.gravity.y = gameOptions.birdGravity;
+        this.pipeGroup.setVelocityX(-gameOptions.bearSpeed);
+        this.bear = this.physics.add.sprite(80, game.config.height / 2, 'bear');
+        this.bear.body.gravity.y = gameOptions.bearGravity;
         this.input.on('pointerdown', this.flap, this);
         this.score = 0;
         this.topScore = localStorage.getItem(gameOptions.localStorageName) == null ? 0 : localStorage.getItem(gameOptions.localStorageName);
         this.scoreText = this.add.text(10, 10, '');
+
+        const user = Moralis.User.current();
+
+        if(user) 
+            this.add.text(10, 45, `User: ${user.id}`);
+            
         this.updateScore(this.score);
     }
     updateScore(inc){
         this.score += inc;
         this.scoreText.text = 'Score: ' + this.score + '\nBest: ' + this.topScore;
     }
+
     placePipes(addScore){
         let rightmost = this.getRightmostPipe();
         let pipeHoleHeight = Phaser.Math.Between(gameOptions.pipeHole[0], gameOptions.pipeHole[1]);
@@ -92,7 +107,7 @@ class playGame extends Phaser.Scene{
         }
     }
     flap(){
-        this.bird.body.velocity.y = -gameOptions.birdFlapPower;
+        this.bear.body.velocity.y = -gameOptions.bearFlapPower;
     }
     getRightmostPipe(){
         let rightmostPipe = 0;
@@ -102,10 +117,10 @@ class playGame extends Phaser.Scene{
         return rightmostPipe;
     }
     update(){
-        this.physics.world.collide(this.bird, this.pipeGroup, function(){
+        this.physics.world.collide(this.bear, this.pipeGroup, function(){
             this.die();
         }, null, this);
-        if(this.bird.y > game.config.height || this.bird.y < 0){
+        if(this.bear.y > game.config.height || this.bear.y < 0){
             this.die();
         }
         this.pipeGroup.getChildren().forEach(function(pipe){
