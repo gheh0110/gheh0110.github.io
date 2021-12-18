@@ -37,7 +37,7 @@ class Preloader extends Phaser.State {
     image('start', 'assets/buttons/start.png');
 
     // Spritesheet
-    spritesheet('bear', 'assets/bear/bear.png', 19, 14);
+    spritesheet('bear', 'assets/bear/bear.png', 30, 30);
 
     // Audio
     ['die', 'hit', 'point', 'swooshing', 'wing'].forEach(el => audio(el, `assets/audio/${el}.wav`));
